@@ -21,7 +21,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Run Tests (Skip if not available)
+      - name: Run Tests
         run: |
           npm test --if-present > test-results.txt 2>&1 || echo "No tests found" > test-results.txt
 
@@ -33,7 +33,7 @@ jobs:
 
   deploy:
     needs: test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # self-hosted থেকে পরিবর্তন করে ubuntu-latest
 
     steps:
       - name: Download Artifact

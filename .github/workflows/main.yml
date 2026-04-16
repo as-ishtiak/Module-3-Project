@@ -4,6 +4,9 @@ on:
   push:
     branches: [ "main" ]
 
+env:
+  USE_SELF_HOSTED: false  # false = ubuntu-latest, true = self-hosted
+
 jobs:
 
   test:
@@ -33,10 +36,7 @@ jobs:
 
   deploy:
     needs: test
-    runs-on: [self-hosted, linux]  # সঠিক সিনট্যাক্স
-    
-    # Error হ্যান্ডলিং
-    continue-on-error: true
+    runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[env.USE_SELF_HOSTED == 'true'] }}
     
     steps:
       - name: Download Artifact
@@ -54,19 +54,12 @@ jobs:
         run: npm install
 
       - name: Install PM2
+        if: runner.os == 'Linux'
         run: npm install -g pm2
 
-      - name: Check if server.js exists
-        run: |
-          if [ ! -f src/server.js ]; then
-            echo "Warning: src/server.js not found"
-            mkdir -p src
-            echo "console.log('Server started');" > src/server.js
-          fi
-
       - name: Deploy App
+        if: runner.os == 'Linux'
         run: |
           pm2 stop my-app || true
-          pm2 start src/server.js --name my-app
+          pm2 start src/server.js --name my-app || npm start
           pm2 save
-          pm2 list

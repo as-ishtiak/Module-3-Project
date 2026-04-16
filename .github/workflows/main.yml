@@ -7,7 +7,7 @@ on:
 jobs:
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # self-hosted না ব্যবহার করে
 
     steps:
       - name: Checkout Code
@@ -24,6 +24,8 @@ jobs:
       - name: Run Tests
         run: |
           npm test --if-present > test-results.txt 2>&1 || echo "No tests found" > test-results.txt
+          echo "=== Test Results ==="
+          cat test-results.txt
 
       - name: Upload Test Artifact
         uses: actions/upload-artifact@v4
@@ -40,9 +42,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: test-results
-
+      
       - name: Show Test Results
-        run: cat test-results.txt
+        run: |
+          if [ -f "test-results.txt" ]; then
+            cat test-results.txt
+          else
+            echo "No test results file found"
+          fi
 
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -50,17 +57,8 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Install PM2 (optional, for local testing)
+      - name: Deploy App
         run: |
-          if command -v pm2 &> /dev/null; then
-            echo "PM2 already installed"
-          else
-            npm install -g pm2
-          fi
-
-      - name: Deploy App (Simulated)
-        run: |
-          echo "Deployment simulation..."
-          echo "✅ Deploy job completed successfully"
-          # pm2 stop my-app || true
-          # pm2 start src/server.js --name my-app
+          echo "Deployment started..."
+          # আপনার deploy কমান্ড এখানে দিন
+          echo "Deployment completed!"
